@@ -4,7 +4,16 @@ import styles from '../styles/Home.module.css'
 import {signIn, signOut, useSession} from "next-auth/react"
 
 const Home: NextPage = () => {
-    const  {data: session, status} = useSession();
+    const {data: session, status} = useSession();
+    const loading = status === 'loading';
+
+    const quit = async () => {
+        const idToken = session?.idToken;
+            await signOut(
+                {
+                    callbackUrl: '/api/auth/logout?id_token_hint=' + idToken,
+                });
+    }
 
     return (
         <div className={styles.container}>
@@ -20,12 +29,24 @@ const Home: NextPage = () => {
                     {process.env.NEXT_PUBLIC_BROWSER_VARIABLE}
                 </h1>
                 <div className={styles.grid}>
-                    <a className={styles.card} onClick={(e) => {
-                        e.preventDefault()
-                        signIn();
-                    }}>
-                        <h2>Login</h2>
-                    </a>
+                    {!session ?
+                        (<a className={styles.card} onClick={(e) => {
+                            e.preventDefault();
+                            signIn('keycloak');
+                        }}>
+                            <h2>Login</h2>
+                        </a>)
+                        : (<>
+                                <a className={styles.card} onClick={quit}>
+                                    <h2>Logout</h2>
+                                </a>
+                                <div>
+                                    <p style={{width: 50}}>{session.accessToken}</p>
+                                    <pre>{JSON.stringify(session.user, null, 2)}</pre>
+                                </div>
+                            </>
+                        )
+                    }
                 </div>
             </main>
 
