@@ -27,7 +27,7 @@ const Static: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = (props,
 
             <main className={styles.main}>
                 <h1 className={styles.title}>
-                    Static Page
+                    Static Rendering
                 </h1>
                 <a className={styles.grid}>
                     {props.countries.map((country) => (

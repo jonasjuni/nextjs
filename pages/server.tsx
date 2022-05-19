@@ -1,10 +1,20 @@
-import {NextPage} from "next";
+import {InferGetServerSidePropsType, NextPage} from "next";
 import styles from "../styles/Home.module.css";
 import Head from "next/head";
+import client from "../apollo-client";
+import {CountriesDocument, CountriesQuery} from "../src/generated/graphql";
 
-const Server: NextPage = () => {
+export const getServerSideProps = async () => {
+    const {data} = await client.query<CountriesQuery>({query: CountriesDocument});
 
+    return {
+        props: {
+            countries: data.countries.slice(0, 4),
+        },
+    };
+}
 
+const Server: NextPage<InferGetServerSidePropsType<typeof getServerSideProps>> = (props) => {
     return (
         <div className={styles.container}>
             <Head>
@@ -15,12 +25,15 @@ const Server: NextPage = () => {
 
             <main className={styles.main}>
                 <h1 className={styles.title}>
-                    Server Side Page
+                    Server-side Rendering
                 </h1>
                 <div className={styles.grid}>
-                    <a className={styles.card}>
-                        <h2>Static</h2>
-                    </a>
+                    {props.countries.map((country) => (
+                        <div key={country.code} className={styles.card} style={{width: "100%"}}>
+                            <h2>{country.name}</h2>
+                            <p>{country.code}</p>
+                        </div>
+                    ))}
                 </div>
             </main>
 
@@ -28,7 +41,6 @@ const Server: NextPage = () => {
             </footer>
         </div>
     );
-
 }
 
 
