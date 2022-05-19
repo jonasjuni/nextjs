@@ -1,8 +1,11 @@
 import {NextPage} from "next";
 import styles from "../styles/Home.module.css";
 import Head from "next/head";
+import {useCountriesQuery} from "../src/generated/graphql";
 
 const Client: NextPage = () => {
+
+   const  {data, loading, error} = useCountriesQuery();
 
     return (
         <div className={styles.container}>
@@ -13,15 +16,19 @@ const Client: NextPage = () => {
             </Head>
 
             <main className={styles.main}>
-                <h1 className={styles.title} style={{width: "max-content"}}>
-                    Client Side Page
+                <h1 className={styles.title}>
+                    Static Page
                 </h1>
-                <div className={styles.grid}>
-                    <a className={styles.card}>
-                        <h2>Static</h2>
-                    </a>
-                </div>
+                <a className={styles.grid}>
+                    {data?.countries.map((country) => (
+                        <div key={country.code} className={styles.card} style={{width: "100%"}}>
+                            <h2>{country.name}</h2>
+                            <p>{country.code} - {country.emoji}</p>
+                        </div>
+                    ))}
+                </a>
             </main>
+
             <footer className={styles.footer}>
             </footer>
         </div>
