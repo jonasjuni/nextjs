@@ -1,4 +1,3 @@
-overwrite: true
 schema: "https://countries.trevorblades.com/"
 documents: "**/*.{gql, graphql}"
 generates:

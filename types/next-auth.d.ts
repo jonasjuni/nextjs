@@ -7,6 +7,12 @@ declare module "next-auth" {
         /** This is an example. You can find me in types/next-auth.d.ts */
         accessToken: string;
         idToken: string;
+        provider: string;
+        user: {
+            provider: string;
+            email: string;
+            name: string;
+        }
     }
 
     interface Account {
@@ -16,6 +22,7 @@ declare module "next-auth" {
         token_type: string;
         expires_at: number;
         id_token: string;
+        provider: string;
     }
 }
 
@@ -27,6 +34,7 @@ declare module "next-auth/jwt" {
         refreshToken: string;
         accessTokenExpired: number;
         idToken: string;
+        provider: string;
 
     }
 }
