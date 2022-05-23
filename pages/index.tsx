@@ -12,16 +12,6 @@ const Home: NextPage = () => {
 
     const [realm, setRealm] = useState('abc');
 
-    const providers = async () => {
-        const providers = await getProviders();
-        console.log(providers);
-    }
-    providers();
-
-    const options: SignInOptions = {
-        issuer: 'http://localhost:8080/realms/jcsj'
-    }
-
     const quit = async () => {
         const idToken = session?.idToken;
         await signOut(
@@ -29,12 +19,6 @@ const Home: NextPage = () => {
                 callbackUrl: '/api/auth/logout?id_token_hint=' + idToken,
             });
     }
-
-    const test = KeycloakProvider({
-        clientId: process.env.KEYCLOAK_ID,
-        clientSecret: process.env.KEYCLOAK_SECRET,
-        issuer: process.env.KEYCLOAK_ISSUER,
-    });
 
     return (
         <div className={styles.container}>
