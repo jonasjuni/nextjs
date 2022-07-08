@@ -1,36 +1,69 @@
 import NextAuth from "next-auth"
 import KeycloakProvider from "next-auth/providers/keycloak";
 import {JWT} from "next-auth/jwt";
-
-const realms = [
-    {
-        id: 'abc',
-        clientId: 'nextjs',
-        clientSecret: 'PX9kq5xjYSyKB4McUVLjEi3KtNNhVSdz',
-        issuer: 'http://localhost:8080/realms/abc',
-    },
-    {
-        id: 'jcsj',
-        clientId: 'nextjs',
-        clientSecret: 'kPGKIof2zlc2DnfC0yXlYJd7dtxUKXKj',
-        issuer: 'http://localhost:8080/realms/jcsj',
-    }
-];
+import {NextApiRequest, NextApiResponse} from "next";
+import jwtDecode from "jwt-decode";
 
 
 const refreshAccessToken = async (token: JWT) => {
+    try {
+        const keycloakIssuer: { iss: string } = jwtDecode(token.accessToken);
 
-    return token;
+        const url = `${
+            keycloakIssuer.iss ||
+            process.env.KEYCLOAK_ID + '/realms/master/'
+        }/protocol/openid-connect/token`;
+
+        const body = new URLSearchParams({
+            client_id: process.env.KEYCLOAK_ID as string,
+            client_secret: 'ignore',
+            grant_type: 'refresh_token',
+            refresh_token: token.refreshToken,
+        });
+
+        const response = await fetch(url, {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            method: 'POST',
+            body: body,
+        });
+
+        const refreshedTokens = await response.json();
+
+        if (!response.ok) {
+            throw refreshedTokens;
+
+        }
+        return {
+            ...token,
+            accessToken: refreshedTokens.access_token,
+            accessTokenExpires: Date.now() + refreshedTokens.expires_in * 1000,
+            refreshToken: refreshedTokens.refresh_token ?? token.refreshToken,
+        };
+
+    } catch (e) {
+        console.log(e);
+        return {
+            ...token,
+            error: 'RefreshAccessTokenError',
+        };
+    }
 }
-export default NextAuth({
+
+let providers: string[] = [];
+
+let nextAuth = NextAuth({
     debug: true,
-    secret: 'ZH+S4qxv82gIt9QZw5FLTMfSrLrTy/1BKyh7RTdr/xA=',
-    providers: realms.map((realm) => KeycloakProvider({
-        id: realm.id,
-        clientId: realm.clientId,
-        clientSecret: realm.clientSecret,
-        issuer: realm.issuer
-    })),
+    providers: [
+        KeycloakProvider({
+            id: 'master',
+            name: 'master',
+            clientId: process.env.KEYCLOAK_ID,
+            clientSecret: 'ignore',
+            issuer: process.env.KEYCLOAK_ISSUER + '/master',
+        })
+    ],
     callbacks: {
         async jwt({token, user, account}) {
             if (account && user) {
@@ -41,14 +74,11 @@ export default NextAuth({
                 token.provider = account.provider;
                 return token;
             }
-
             const now = Date.now();
             if (now < token.accessTokenExpired) return token;
 
             return refreshAccessToken(token);
         },
-        //NOW Wed May 11 2022 18:19:55 GMT-0300 (Horário Padrão de Brasília)
-        //Expires 1652303942 Wed May 11 2022 18:19:02 GMT-0300 (Horário Padrão de Brasília)
 
         async session({session, token, user}) {
             if (token) {
@@ -60,3 +90,56 @@ export default NextAuth({
         },
     },
 });
+
+function addNewProvider(provider: string) {
+    const isNew = providers.indexOf(provider);
+    if (isNew >= 0) return;
+
+    providers.push(provider);
+    nextAuth = NextAuth({
+        debug: true,
+        providers: providers.map((provider) => KeycloakProvider({
+            id: provider,
+            name: provider,
+            clientId: process.env.KEYCLOAK_ID,
+            clientSecret: 'ignore',
+            issuer: process.env.KEYCLOAK_ISSUER + '/' + provider,
+        })),
+        callbacks: {
+            async jwt({token, user, account}) {
+                if (account && user) {
+                    token.accessToken = account.access_token;
+                    token.refreshToken = account.refresh_token;
+                    token.accessTokenExpired = (account.expires_at - 30) * 1000;
+                    token.idToken = account.id_token;
+                    token.provider = account.provider;
+                    return token;
+                }
+                const now = Date.now();
+                if (now < token.accessTokenExpired) return token;
+
+                return refreshAccessToken(token);
+            },
+
+            async session({session, token, user}) {
+                if (token) {
+                    session.accessToken = token.accessToken;
+                    session.idToken = token.idToken;
+                    session.provider = token.provider;
+                }
+                return session;
+            },
+        },
+    });
+}
+
+const Handle = (req: NextApiRequest, res: NextApiResponse) => {
+
+    if (req.query.nextauth[0] === 'signin' && req.query.nextauth[1]) {
+        const realm = req.query.nextauth[1];
+        addNewProvider(realm);
+    }
+    return nextAuth(req, res);
+}
+
+export default Handle;

@@ -1,0 +1,104 @@
+[
+  {
+    "id": "abc",
+    "clientId": "nextjs",
+    "clientSecret": "PX9kq5xjYSyKB4McUVLjEi3KtNNhVSdz",
+    "issuer": "http://localhost:8080/realms/abc"
+  },
+  {
+    "id": "jcsj",
+    "clientId": "nextjs",
+    "clientSecret": "kPGKIof2zlc2DnfC0yXlYJd7dtxUKXKj",
+    "issuer": "http://localhost:8080/realms/jcsj"
+  },
+  {
+    "id": "1",
+    "clientId": "nextjs",
+    "clientSecret": "kPGKIof2zlc2DnfC0yXlYJd7dtxUKXKj",
+    "issuer": "http://localhost:8080/realms/jcsj"
+  },
+  {
+    "id": "2",
+    "clientId": "nextjs",
+    "clientSecret": "kPGKIof2zlc2DnfC0yXlYJd7dtxUKXKj",
+    "issuer": "http://localhost:8080/realms/jcsj"
+  },
+  {
+    "id": "3",
+    "clientId": "nextjs",
+    "clientSecret": "kPGKIof2zlc2DnfC0yXlYJd7dtxUKXKj",
+    "issuer": "http://localhost:8080/realms/jcsj"
+  },
+  {
+    "id": "4",
+    "clientId": "nextjs",
+    "clientSecret": "kPGKIof2zlc2DnfC0yXlYJd7dtxUKXKj",
+    "issuer": "http://localhost:8080/realms/jcsj"
+  },
+  {
+    "id": "5",
+    "clientId": "nextjs",
+    "clientSecret": "kPGKIof2zlc2DnfC0yXlYJd7dtxUKXKj",
+    "issuer": "http://localhost:8080/realms/jcsj"
+  },
+  {
+    "id": "6",
+    "clientId": "nextjs",
+    "clientSecret": "kPGKIof2zlc2DnfC0yXlYJd7dtxUKXKj",
+    "issuer": "http://localhost:8080/realms/jcsj"
+  },
+  {
+    "id": "7",
+    "clientId": "nextjs",
+    "clientSecret": "kPGKIof2zlc2DnfC0yXlYJd7dtxUKXKj",
+    "issuer": "http://localhost:8080/realms/jcsj"
+  },
+  {
+    "id": "8",
+    "clientId": "nextjs",
+    "clientSecret": "kPGKIof2zlc2DnfC0yXlYJd7dtxUKXKj",
+    "issuer": "http://localhost:8080/realms/jcsj"
+  },
+  {
+    "id": "9",
+    "clientId": "nextjs",
+    "clientSecret": "kPGKIof2zlc2DnfC0yXlYJd7dtxUKXKj",
+    "issuer": "http://localhost:8080/realms/jcsj"
+  },
+  {
+    "id": "10",
+    "clientId": "nextjs",
+    "clientSecret": "kPGKIof2zlc2DnfC0yXlYJd7dtxUKXKj",
+    "issuer": "http://localhost:8080/realms/jcsj"
+  },
+  {
+    "id": "11",
+    "clientId": "nextjs",
+    "clientSecret": "kPGKIof2zlc2DnfC0yXlYJd7dtxUKXKj",
+    "issuer": "http://localhost:8080/realms/jcsj"
+  },
+  {
+    "id": "12",
+    "clientId": "nextjs",
+    "clientSecret": "kPGKIof2zlc2DnfC0yXlYJd7dtxUKXKj",
+    "issuer": "http://localhost:8080/realms/jcsj"
+  },
+  {
+    "id": "13",
+    "clientId": "nextjs",
+    "clientSecret": "kPGKIof2zlc2DnfC0yXlYJd7dtxUKXKj",
+    "issuer": "http://localhost:8080/realms/jcsj"
+  },
+  {
+    "id": "14",
+    "clientId": "nextjs",
+    "clientSecret": "kPGKIof2zlc2DnfC0yXlYJd7dtxUKXKj",
+    "issuer": "http://localhost:8080/realms/jcsj"
+  },
+  {
+    "id": "15",
+    "clientId": "nextjs",
+    "clientSecret": "kPGKIof2zlc2DnfC0yXlYJd7dtxUKXKj",
+    "issuer": "http://localhost:8080/realms/jcsj"
+  }
+]

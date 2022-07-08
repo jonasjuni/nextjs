@@ -1,7 +1,7 @@
 import {NextApiRequest, NextApiResponse} from 'next';
 import jwtDecode from 'jwt-decode';
 
-function Logout(req: NextApiRequest, res: NextApiResponse) {
+export default function Logout(req: NextApiRequest, res: NextApiResponse) {
 
     const idToken = req.query.id_token_hint as string;
     const keycloakIssuer: { iss: string } = jwtDecode(idToken);
@@ -14,5 +14,3 @@ function Logout(req: NextApiRequest, res: NextApiResponse) {
 
     res.redirect(path);
 }
-
-export default Logout;

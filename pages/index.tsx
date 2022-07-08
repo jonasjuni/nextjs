@@ -1,16 +1,53 @@
 import type {NextPage} from 'next'
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
-import {getProviders, signIn, signOut, useSession} from "next-auth/react"
-import KeycloakProvider from "next-auth/providers/keycloak";
-import {SignInOptions} from "next-auth/react/types";
-import {useState} from "react";
+import {getCsrfToken, signIn, signOut, useSession} from "next-auth/react"
+import {useState, useEffect} from "react";
 
 const Home: NextPage = () => {
     const {data: session, status} = useSession();
+
+    useEffect(() => {
+        if (session?.error === "RefreshAccessTokenError") {
+            signIn(); // Force sign in to hopefully resolve error
+        }
+    }, [session]);
+
     const loading = status === 'loading';
 
     const [realm, setRealm] = useState('abc');
+
+    const keycloakSignIn = async (realm: string) => {
+
+        const res = await fetch('/api/auth/signin/' + realm, {
+            method: "post",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            // @ts-expect-error
+            body: new URLSearchParams({
+                csrfToken: await getCsrfToken(),
+                json: true,
+            }),
+        });
+        const data = await res.json();
+        const url = data.url;
+
+        window.location.href = url;
+
+        return;
+        // // If url contains a hash, the browser does not reload the page. We reload manually
+        // if (url.includes("#")) window.location.reload()
+        // return
+
+        // const error = new URL(data.url).searchParams.get("error")
+        // return {
+        //     error,
+        //     status: res.status,
+        //     ok: res.ok,
+        //     url: error ? null : data.url,
+        // } as any
+    }
 
     const quit = async () => {
         const idToken = session?.idToken;
@@ -44,7 +81,7 @@ const Home: NextPage = () => {
                             </select>
                             <a className={styles.card} onClick={async (e) => {
                                 e.preventDefault();
-                                await signIn(realm);
+                                await keycloakSignIn(realm);
                             }}>
                                 <h2>Login</h2>
                             </a>
