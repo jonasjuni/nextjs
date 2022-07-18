@@ -4,7 +4,7 @@
   "extensions": {
     "endpoints": {
       "Default GraphQL Endpoint": {
-        "url": "https://countries.trevorblades.com",
+        "url": "${env:NEXT_PUBLIC_API_URL}",
         "headers": {
           "user-agent": "JS GraphQL"
         },
