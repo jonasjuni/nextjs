@@ -1,4 +1,4 @@
-import {InferGetServerSidePropsType, NextPage} from "next";
+ import {InferGetServerSidePropsType, NextPage} from "next";
 
 export const getServerSideProps = async () => {
 

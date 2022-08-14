@@ -139,6 +139,7 @@ const Handle = (req: NextApiRequest, res: NextApiResponse) => {
         const realm = req.query.nextauth[1];
         addNewProvider(realm);
     }
+    //Case async, return await nextAuth(req, res);
     return nextAuth(req, res);
 }
 
