@@ -1,5 +1,5 @@
-import  "next-auth"
-import  "next-auth/jwt"
+import "next-auth"
+import "next-auth/jwt"
 
 /** Example on how to extend the built-in session types */
 declare module "next-auth" {
@@ -8,6 +8,7 @@ declare module "next-auth" {
         accessToken: string;
         idToken: string;
         provider: string;
+        error: string;
         user: {
             provider: string;
             email: string;
@@ -35,6 +36,7 @@ declare module "next-auth/jwt" {
         accessTokenExpired: number;
         idToken: string;
         provider: string;
+        error: string;
 
     }
 }

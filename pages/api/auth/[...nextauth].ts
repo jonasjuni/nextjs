@@ -1,11 +1,11 @@
-import NextAuth from "next-auth"
+import NextAuth, {CallbacksOptions, NextAuthOptions} from "next-auth"
 import KeycloakProvider from "next-auth/providers/keycloak";
 import {JWT} from "next-auth/jwt";
 import {NextApiRequest, NextApiResponse} from "next";
 import jwtDecode from "jwt-decode";
 
 
-const refreshAccessToken = async (token: JWT) => {
+const refreshAccessToken = async (token: JWT): Promise<JWT> => {
     try {
         const keycloakIssuer: { iss: string } = jwtDecode(token.accessToken);
 
@@ -51,9 +51,35 @@ const refreshAccessToken = async (token: JWT) => {
     }
 }
 
-let providers: string[] = [];
+const callback: Partial<CallbacksOptions> = {
+    async jwt({token, user, account}) {
+        if (account && user) {
+            token.accessToken = account.access_token;
+            token.refreshToken = account.refresh_token;
+            token.accessTokenExpired = (account.expires_at - 30) * 1000;
+            token.idToken = account.id_token;
+            token.provider = account.provider;
+            return token;
+        }
+        const now = Date.now();
+        if (now < token.accessTokenExpired) return token;
 
-let nextAuth = NextAuth({
+        return refreshAccessToken(token);
+    },
+
+    async session({session, token, user}) {
+        if (token) {
+            session.accessToken = token.accessToken;
+            session.idToken = token.idToken;
+            session.provider = token.provider;
+            session.error = token.error;
+        }
+        return session;
+    },
+}
+
+const options: NextAuthOptions = {
+    secret: process.env.NEXTAUTH_SECRET,
     debug: true,
     providers: [
         KeycloakProvider({
@@ -64,78 +90,37 @@ let nextAuth = NextAuth({
             issuer: process.env.KEYCLOAK_ISSUER + '/master',
         })
     ],
-    callbacks: {
-        async jwt({token, user, account}) {
-            if (account && user) {
-                token.accessToken = account.access_token;
-                token.refreshToken = account.refresh_token;
-                token.accessTokenExpired = (account.expires_at - 30) * 1000;
-                token.idToken = account.id_token;
-                token.provider = account.provider;
-                return token;
-            }
-            const now = Date.now();
-            if (now < token.accessTokenExpired) return token;
+    callbacks: callback,
+}
 
-            return refreshAccessToken(token);
-        },
 
-        async session({session, token, user}) {
-            if (token) {
-                session.accessToken = token.accessToken;
-                session.idToken = token.idToken;
-                session.provider = token.provider;
-            }
-            return session;
-        },
-    },
-});
+// Multi-Realms
+const providers: string[] = ['master'];
 
-function addNewProvider(provider: string) {
-    const isNew = providers.indexOf(provider);
+let nextAuth = NextAuth(options);
+
+function addNewProvider(realm: string) {
+    const isNew = providers.indexOf(realm);
     if (isNew >= 0) return;
+    providers.push(realm);
 
-    providers.push(provider);
     nextAuth = NextAuth({
+        secret: process.env.NEXTAUTH_SECRET,
         debug: true,
-        providers: providers.map((provider) => KeycloakProvider({
-            id: provider,
-            name: provider,
+        providers: providers.map((realm) => KeycloakProvider({
+            id: realm,
+            name: realm,
             clientId: process.env.KEYCLOAK_ID,
             clientSecret: 'ignore',
-            issuer: process.env.KEYCLOAK_ISSUER + '/' + provider,
+            issuer: process.env.KEYCLOAK_ISSUER + '/' + realm,
         })),
-        callbacks: {
-            async jwt({token, user, account}) {
-                if (account && user) {
-                    token.accessToken = account.access_token;
-                    token.refreshToken = account.refresh_token;
-                    token.accessTokenExpired = (account.expires_at - 30) * 1000;
-                    token.idToken = account.id_token;
-                    token.provider = account.provider;
-                    return token;
-                }
-                const now = Date.now();
-                if (now < token.accessTokenExpired) return token;
-
-                return refreshAccessToken(token);
-            },
-
-            async session({session, token, user}) {
-                if (token) {
-                    session.accessToken = token.accessToken;
-                    session.idToken = token.idToken;
-                    session.provider = token.provider;
-                }
-                return session;
-            },
-        },
+        callbacks: callback,
     });
 }
 
 const Handle = (req: NextApiRequest, res: NextApiResponse) => {
 
-    if (req.query.nextauth[0] === 'signin' && req.query.nextauth[1]) {
+    if (req?.query.nextauth && req.query.nextauth[0] === 'signin' && req.query.nextauth[1]) {
         const realm = req.query.nextauth[1];
         addNewProvider(realm);
     }

@@ -91,7 +91,7 @@ const Home: NextPage = () => {
                                     <h2>Logout</h2>
                                 </a>
                                 <div>
-                                    <p style={{width: 50}}>{session.accessToken}</p>
+                                    {/*<p style={{width: 50}}>{session.accessToken}</p>*/}
                                     <pre>{JSON.stringify(session.user, null, 2)}</pre>
                                 </div>
                             </>
